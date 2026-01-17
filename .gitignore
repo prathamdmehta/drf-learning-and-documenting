@@ -1,0 +1,28 @@
+# Django
+*.log
+local_settings.py
+db.sqlite3
+media/
+staticfiles/
+__pycache__/
+*.pyc
+.env
+.venv/
+venv/
+env/
+pipenv/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+git add .gitignore
+git add .
+git commit -m "Add .gitignore and initial project files"
+git push origin master
+
