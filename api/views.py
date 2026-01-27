@@ -8,6 +8,7 @@ from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from employees.models import Employee
 from django.http import Http404
+from rest_framework import generics, mixins
 
 """
 Complete CRUD API for Student model using Django REST Framework Function-Based Views (FBVs)
@@ -53,7 +54,7 @@ def studentsView(request):
         # Return 400 Bad Request with validation errors
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  # Fixed: .errors not .error
 
-#function based views
+# function based views
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def studentDetailView(request, pk):
@@ -96,7 +97,9 @@ def studentDetailView(request, pk):
         # Return 204 No Content (successful deletion, no data returned)
         return Response(status=status.HTTP_204_NO_CONTENT)
     
-# class based views for Employee model
+""" 
+------ class based views for Employee model ------
+
 class Employees(APIView):
     def get(self, request):
         employees = Employee.objects.all()
@@ -134,3 +137,40 @@ class EmployeeDetail(APIView):
         employee = self.get_object(pk)
         employee.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+------ mixins class based views for Employee model -------
+
+class Employees(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeSerializer
+
+    def get(self, request):
+        return self.list(request)
+    
+    def post(self, request):
+        return self.create(request)
+    
+class EmployeeDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeSerializer
+
+    def get(self, request, pk):
+        return self.retrieve(request, pk)
+    
+    def put(self, request, pk):
+        return self.update(request, pk)
+    
+    def delete(self, request, pk):
+        return self.destroy(request, pk)
+"""
+
+# ------ generic class based views for Employee model -------
+
+class Employees(generics.ListCreateAPIView):
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeSerializer
+
+class EmployeeDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeSerializer
+    lookup_field = 'pk'
