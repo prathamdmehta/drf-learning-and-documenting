@@ -218,6 +218,7 @@ class EmployeeDetail(generics.RetrieveUpdateDestroyAPIView):
 # automatically creates them for you.
 # ------------------------------------------------------------
 
+'''
 class EmployeeViewset(viewsets.ViewSet):
     # List all employees
     def list(self, request):
@@ -253,3 +254,23 @@ class EmployeeViewset(viewsets.ViewSet):
         employee = get_object_or_404(Employee, pk=pk)
         employee.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+'''
+
+class EmployeeViewset(viewsets.ModelViewSet):
+    
+    # Employee ViewSet using ModelViewSet
+    
+    # This ViewSet automatically provides implementations for:
+    # - list()      - GET /employees/
+    # - create()    - POST /employees/
+    # - retrieve()  - GET /employees/<pk>/
+    # - update()    - PUT /employees/<pk>/
+    # - partial_update() - PATCH /employees/<pk>/
+    # - destroy()   - DELETE /employees/<pk>/
+    
+    # By inheriting from ModelViewSet, we get all CRUD operations
+    # with minimal code. The queryset and serializer_class attributes
+    # define which data to operate on and how to serialize it.
+    
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeSerializer
