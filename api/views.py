@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from students.models import Student
 from .serializers import StudentSerializer, EmployeeSerializer
@@ -8,7 +8,7 @@ from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from employees.models import Employee
 from django.http import Http404
-from rest_framework import generics, mixins
+from rest_framework import generics, mixins, viewsets
 
 """
 Complete CRUD API for Student model using Django REST Framework Function-Based Views (FBVs)
@@ -20,7 +20,6 @@ Supports:
 - PUT /api/students/<pk>/     - Update student (full update)
 - DELETE /api/students/<pk>/  - Delete student
 """
-
 
 @api_view(['GET', 'POST'])
 def studentsView(request):
@@ -97,59 +96,88 @@ def studentDetailView(request, pk):
         # Return 204 No Content (successful deletion, no data returned)
         return Response(status=status.HTTP_204_NO_CONTENT)
     
-""" 
------- class based views for Employee model ------
+# ------------------------------------------------------------
+# 1. Class-Based Views using DRF's APIView
+# ------------------------------------------------------------
+# These views inherit directly from APIView, giving you full control
+# over HTTP methods (GET, POST, PUT, DELETE) logic.
+# This approach is more verbose, but it's great for understanding the basics.
+# ------------------------------------------------------------
 
+'''
 class Employees(APIView):
+    # Handles GET request to list all employees
     def get(self, request):
+        # Retrieve all Employee objects from database
         employees = Employee.objects.all()
+        # Serialize the queryset to Python data types (JSON-ready)
         serializer = EmployeeSerializer(employees, many=True)
-        return Response(serializer.data, status = status.HTTP_200_OK)
+        # Return serialized data with HTTP 200 OK
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
+    # Handles POST request to create a new employee
     def post(self, request):
+        # Deserialize and validate incoming data
         serializer = EmployeeSerializer(data=request.data)
         if serializer.is_valid():
+            # Save new employee record to database
             serializer.save()
-            return Response(serializer.data, status = status.HTTP_201_CREATED)
-        return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+            # Return created employee data with HTTP 201 Created
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        # Return validation errors if invalid
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class EmployeeDetail(APIView):
+    # Utility method to fetch a single Employee instance by primary key (pk)
     def get_object(self, pk):
         try:
             return Employee.objects.get(pk=pk)
         except Employee.DoesNotExist:
+            # Raise HTTP 404 if not found
             raise Http404
         
+    # Handles GET request to retrieve one employee by ID
     def get(self, request, pk):
         employee = self.get_object(pk)
         serializer = EmployeeSerializer(employee)
-        return Response(serializer.data, status = status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
+    # Handles PUT request to update an existing employee
     def put(self, request, pk):
         employee = self.get_object(pk)
         serializer = EmployeeSerializer(employee, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status= status.HTTP_200_OK)
-        return Response(serializer.errors, status= status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+    # Handles DELETE request to remove an employee
     def delete(self, request, pk):
         employee = self.get_object(pk)
         employee.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+'''
 
------- mixins class based views for Employee model -------
+# ------------------------------------------------------------
+# 2. Class-Based Views using Mixins + GenericAPIView
+# ------------------------------------------------------------
+# DRF provides mixins (ListModelMixin, CreateModelMixin, etc.) that
+# implement common CRUD behavior. We just need to call their helper methods.
+# This reduces code duplication.
+# ------------------------------------------------------------
 
+'''
 class Employees(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
 
+    # Use mixin-provided methods to handle requests
     def get(self, request):
         return self.list(request)
     
     def post(self, request):
         return self.create(request)
-    
+
 class EmployeeDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
@@ -162,10 +190,16 @@ class EmployeeDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.
     
     def delete(self, request, pk):
         return self.destroy(request, pk)
-"""
+'''
 
-# ------ generic class based views for Employee model -------
+# ------------------------------------------------------------
+# 3. Generic Class-Based Views
+# ------------------------------------------------------------
+# These are even more concise. DRF’s generic views combine common
+# mixins with GenericAPIView internally, so you just declare the view type.
+# ------------------------------------------------------------
 
+'''
 class Employees(generics.ListCreateAPIView):
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
@@ -173,4 +207,49 @@ class Employees(generics.ListCreateAPIView):
 class EmployeeDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
-    lookup_field = 'pk'
+    lookup_field = 'pk'  # Explicitly tells DRF which field to use for lookups
+'''
+
+# ------------------------------------------------------------
+# 4. ViewSets
+# ------------------------------------------------------------
+# ViewSets group related logic (list, create, retrieve, update, delete)
+# into a single class. You don't explicitly define URLs — the DRF router
+# automatically creates them for you.
+# ------------------------------------------------------------
+
+class EmployeeViewset(viewsets.ViewSet):
+    # List all employees
+    def list(self, request):
+        queryset = Employee.objects.all()
+        serializer = EmployeeSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    # Create a new employee
+    def create(self, request):
+        serializer = EmployeeSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # Retrieve a specific employee by ID
+    def retrieve(self, request, pk=None):
+        employee = get_object_or_404(Employee, pk=pk)
+        serializer = EmployeeSerializer(employee)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    # Update an existing employee
+    def update(self, request, pk=None):
+        employee = get_object_or_404(Employee, pk=pk)
+        serializer = EmployeeSerializer(employee, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors)
+
+    # Delete an employee
+    def delete(self, request, pk=None):
+        employee = get_object_or_404(Employee, pk=pk)
+        employee.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
