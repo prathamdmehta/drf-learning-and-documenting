@@ -9,6 +9,8 @@ from rest_framework.views import APIView
 from employees.models import Employee
 from django.http import Http404
 from rest_framework import generics, mixins, viewsets
+from blogs.models import Blog, Comment
+from blogs.serializers import BlogSerializer, CommentSerializer
 
 """
 Complete CRUD API for Student model using Django REST Framework Function-Based Views (FBVs)
@@ -274,3 +276,67 @@ class EmployeeViewset(viewsets.ModelViewSet):
     
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
+
+# List and create blogs
+class BlogsView(generics.ListCreateAPIView):
+    # Base queryset for this view. DRF will use this to:
+    # - list all blogs on GET
+    # - know where to create new Blog instances on POST
+    queryset = Blog.objects.all()
+
+    # Serializer that defines how Blog instances are converted
+    # to/from JSON. This is usually where you add a nested
+    # CommentSerializer if you want each blog to include its comments.
+    #
+    # Example (in serializers.py):
+    # class BlogSerializer(serializers.ModelSerializer):
+    #     comments = CommentSerializer(many=True, read_only=True)
+    #     class Meta:
+    #         model = Blog
+    #         fields = ["id", "title", "content", "comments"]
+    serializer_class = BlogSerializer
+
+
+# List and create comments
+class CommentsView(generics.ListCreateAPIView):
+    # Base queryset for listing all comments or creating new ones.
+    # In a nested setup, you often filter this by blog (e.g. ?blog=<id>
+    # or using a nested URL like /blogs/<blog_id>/comments/ in get_queryset).
+    queryset = Comment.objects.all()
+
+    # Serializer for Comment objects. If Comment has a FK to Blog,
+    # this serializer usually includes that relationship either as:
+    # - a primary key (blog id),
+    # - a nested BlogSerializer,
+    # - or a hyperlink, depending on how you want the API to look.
+    serializer_class = CommentSerializer
+
+
+# Retrieve, update, and delete a single blog
+class BlogDetailView(generics.RetrieveUpdateDestroyAPIView):
+    # Base queryset used to look up an individual Blog instance.
+    queryset = Blog.objects.all()
+
+    # Serializer for a single blog. With nested serializers, this
+    # is where a blog can return all its related comments inline,
+    # thanks to BlogSerializer having a nested CommentSerializer field.
+    serializer_class = BlogSerializer
+
+    # Field used for lookup in the URL (e.g. /blogs/<pk>/).
+    lookup_field = 'pk'
+
+
+# Retrieve, update, and delete a single comment
+class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
+    # Base queryset used to look up individual Comment instances.
+    # In a nested URL pattern, you might override get_queryset()
+    # to ensure the comment belongs to a given blog.
+    queryset = Comment.objects.all()
+
+    # Serializer for a single comment. If you want each comment
+    # to also show some blog info, you can nest BlogSerializer here,
+    # or keep only the blog id for a flatter representation.
+    serializer_class = CommentSerializer
+
+    # Field used for lookup in the URL (e.g. /comments/<pk>/).
+    lookup_field = 'pk'
