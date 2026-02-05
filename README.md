@@ -81,13 +81,13 @@ Similar views for Comment.
 ### 8. Custom Pagination
 
 - CustomPagination class based on PageNumberPagination:
- - Custom query params (page-num, page_size).
- - Custom response structure with next, previous, count, page_size, and results.
+  - Custom query params (page-num, page_size).
+  - Custom response structure with next, previous, count, page_size, and results.
 
 - Demonstrates how to:
- - Conntrol page size.
- - Limit maximum page size.
- - Customize the pagination response returned to the client.
+  - Conntrol page size.
+  - Limit maximum page size.
+  - Customize the pagination response returned to the client.
 
 ---
 
@@ -108,7 +108,6 @@ cd drf-learning-and-documenting
 ### 2. Create and activate a virtual environment
 python -m venv env
 source env/bin/activate      # macOS/Linux
-# or
 env\Scripts\activate        # Windows
 
 ### 3. Install dependencies
@@ -119,6 +118,8 @@ python manage.py migrate
 
 ### 5. Run the development server
 python manage.py runserver
+
+---
 
 ### Learning Roadmap
 This repository is organized as a step-by-step learning path:
@@ -132,7 +133,3 @@ This repository is organized as a step-by-step learning path:
 8. Global and custom pagination.
 Each step is committed with messages that explain what was added, so you can go through the Git history to see the progression.
 Deploy the API to a hosting platform.
-
-License
-This project is mainly for learning and documentation.
-Feel free to fork it and adapt it for your own DRF learning journey.
