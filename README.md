@@ -77,106 +77,60 @@ BlogDetailView (RetrieveUpdateDestroyAPIView)
 
 Similar views for Comment.
 
-8. Custom Pagination
-CustomPagination class based on PageNumberPagination:
 
-Custom query params (page-num, page_size).
+### 8. Custom Pagination
 
-Custom response structure with next, previous, count, page_size, and results.
+- CustomPagination class based on PageNumberPagination:
+ - Custom query params (page-num, page_size).
+ - Custom response structure with next, previous, count, page_size, and results.
 
-Demonstrates how to:
+- Demonstrates how to:
+ - Conntrol page size.
+ - Limit maximum page size.
+ - Customize the pagination response returned to the client.
 
-Control page size.
+---
 
-Limit maximum page size.
+### Tech Stack
+- Backend Framework: Django, Django REST Framework.
+- Language: Python.
+- Database: SQLite (for learning and quick setup).
+- Version Control: Git and GitHub.
 
-Customize the pagination response returned to the client.
+---
 
-Tech Stack
-Backend Framework: Django, Django REST Framework.
+### Getting Started
 
-Language: Python.
-
-Database: SQLite (for learning and quick setup).
-
-Version Control: Git and GitHub.
-
-Getting Started
-1. Clone the repository
-bash
+### 1. Clone the repository
 git clone https://github.com/<your-username>/drf-learning-and-documenting.git
 cd drf-learning-and-documenting
-2. Create and activate a virtual environment
-bash
+
+### 2. Create and activate a virtual environment
 python -m venv env
 source env/bin/activate      # macOS/Linux
 # or
 env\Scripts\activate        # Windows
-3. Install dependencies
-bash
+
+### 3. Install dependencies
 pip install -r requirements.txt
-4. Apply migrations
-bash
+
+### 4. Apply migrations
 python manage.py migrate
-5. Run the development server
-bash
+
+### 5. Run the development server
 python manage.py runserver
-6. Open the API in your browser
-Visit:
 
-http://127.0.0.1:8000/
-
-and explore the different endpoints (students, employees, blogs, comments, etc.).
-
-Learning Roadmap
+### Learning Roadmap
 This repository is organized as a step-by-step learning path:
-
-Basic Django + DRF setup.
-
-Function-based views for simple APIs.
-
-Class-based views using APIView.
-
-Mixins + GenericAPIView.
-
-Generic class-based views.
-
-ViewSets and Routers.
-
-Nested serializers (Blog–Comment relationship).
-
-Global and custom pagination.
-
+1. Basic Django + DRF setup.
+2. Function-based views for simple APIs.
+3. Class-based views using APIView.
+4. Mixins + GenericAPIView.
+5. Generic class-based views.
+6. ViewSets and Routers.
+7. Nested serializers (Blog–Comment relationship).
+8. Global and custom pagination.
 Each step is committed with messages that explain what was added, so you can go through the Git history to see the progression.
-
-How to Use This Repo for Learning
-Read the code and comments in each app.
-
-Run the server and try the endpoints with:
-
-DRF’s browsable API in the browser.
-
-Tools like Postman, curl, or HTTPie.
-
-Experiment and modify:
-
-Change serializers (e.g. make the nested serializer writable).
-
-Adjust pagination settings.
-
-Add new models and extend existing views.
-
-Try adding your own endpoints using different DRF patterns.
-
-Future Ideas
-Add authentication and permissions.
-
-Add filtering, searching, and ordering.
-
-Add Swagger/OpenAPI documentation.
-
-Write tests for views and serializers.
-
 Deploy the API to a hosting platform.
 
 License
