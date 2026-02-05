@@ -11,6 +11,7 @@ from django.http import Http404
 from rest_framework import generics, mixins, viewsets
 from blogs.models import Blog, Comment
 from blogs.serializers import BlogSerializer, CommentSerializer
+from .paginations import CustomPagination
 
 """
 Complete CRUD API for Student model using Django REST Framework Function-Based Views (FBVs)
@@ -276,6 +277,7 @@ class EmployeeViewset(viewsets.ModelViewSet):
     
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
+    pagination_class = CustomPagination
 
 # List and create blogs
 class BlogsView(generics.ListCreateAPIView):
